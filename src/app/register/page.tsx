@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { authApi } from "@/lib/api";
+import { useEffect } from "react";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -13,10 +15,19 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const oauthError = searchParams.get("oauthError");
+    if (oauthError) {
+      setError(oauthError);
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -63,6 +74,11 @@ export default function RegisterPage() {
     }
   };
 
+  const handleGoogleSignIn = () => {
+    setGoogleLoading(true);
+    window.location.href = authApi.getGoogleAuthUrl();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -85,6 +101,30 @@ export default function RegisterPage() {
               </div>
             )}
 
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={loading || googleLoading}
+              className="w-full h-12 rounded-lg bg-white hover:bg-slate-100 text-slate-900 font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-3"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="#EA4335"
+                  d="M12 10.2v3.9h5.5c-.2 1.2-1.4 3.6-5.5 3.6-3.3 0-6-2.8-6-6.2s2.7-6.2 6-6.2c1.9 0 3.2.8 3.9 1.5l2.6-2.6C16.9 2.6 14.7 1.7 12 1.7 6.8 1.7 2.6 6.2 2.6 11.5S6.8 21.3 12 21.3c6.9 0 9.1-4.8 9.1-7.3 0-.5 0-.9-.1-1.3H12z"
+                />
+              </svg>
+              {googleLoading ? "Redirecting to Google..." : "Continue with Google"}
+            </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-slate-900 px-2 text-slate-400">or</span>
+              </div>
+            </div>
+
             <div>
               <label
                 htmlFor="username"
@@ -104,7 +144,7 @@ export default function RegisterPage() {
                 placeholder="Choose a username"
                 value={formData.username}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || googleLoading}
               />
             </div>
 
@@ -125,7 +165,7 @@ export default function RegisterPage() {
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || googleLoading}
               />
             </div>
 
@@ -147,7 +187,7 @@ export default function RegisterPage() {
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || googleLoading}
               />
               <p className="text-xs text-slate-500 mt-1">
                 At least 6 characters
@@ -171,13 +211,13 @@ export default function RegisterPage() {
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || googleLoading}
               />
             </div>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="w-full h-12 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-indigo-500/20 mt-6"
             >
               {loading ? "Creating account..." : "Create Account"}

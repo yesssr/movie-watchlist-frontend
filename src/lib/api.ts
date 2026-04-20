@@ -29,14 +29,18 @@ apiClient.interceptors.response.use(
     // Let components handle 401 errors individually
     // Don't auto-redirect to prevent infinite loops
     return Promise.reject(error);
-  },
+  }
 );
 
 export const authApi = {
+  getGoogleAuthUrl: (): string => {
+    return `${API_BASE_URL}/api/auth/google`;
+  },
+
   register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
     const response: AxiosResponse<AuthResponse> = await apiClient.post(
       "/api/auth/register",
-      credentials,
+      credentials
     );
     return response.data;
   },
@@ -44,14 +48,15 @@ export const authApi = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response: AxiosResponse<AuthResponse> = await apiClient.post(
       "/api/auth/login",
-      credentials,
+      credentials
     );
     return response.data;
   },
 
   logout: async (): Promise<ApiResponse> => {
-    const response: AxiosResponse<ApiResponse> =
-      await apiClient.post("/api/auth/logout");
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      "/api/auth/logout"
+    );
     return response.data;
   },
 
@@ -72,8 +77,9 @@ export const authApi = {
   },
 
   refreshToken: async (): Promise<AuthResponse> => {
-    const response: AxiosResponse<AuthResponse> =
-      await apiClient.post("/api/auth/refresh");
+    const response: AxiosResponse<AuthResponse> = await apiClient.post(
+      "/api/auth/refresh"
+    );
     return response.data;
   },
 };
@@ -97,7 +103,7 @@ export const movieApi = {
   },
 
   createMovie: async (
-    movieData: MovieFormData,
+    movieData: MovieFormData
   ): Promise<ApiResponse<{ movie: Movie }>> => {
     const response: AxiosResponse<ApiResponse<{ movie: Movie }>> =
       await apiClient.post("/api/movies", movieData);
@@ -106,7 +112,7 @@ export const movieApi = {
 
   updateMovie: async (
     id: string,
-    movieData: Partial<MovieFormData>,
+    movieData: Partial<MovieFormData>
   ): Promise<ApiResponse<{ movie: Movie }>> => {
     const response: AxiosResponse<ApiResponse<{ movie: Movie }>> =
       await apiClient.put(`/api/movies/${id}`, movieData);
@@ -115,7 +121,7 @@ export const movieApi = {
 
   deleteMovie: async (id: string): Promise<ApiResponse> => {
     const response: AxiosResponse<ApiResponse> = await apiClient.delete(
-      `/api/movies/${id}`,
+      `/api/movies/${id}`
     );
     return response.data;
   },
@@ -128,7 +134,7 @@ export const movieApi = {
 
   searchTMDb: async (query: string): Promise<ApiResponse> => {
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/api/movies/search-tmdb?query=${encodeURIComponent(query)}`,
+      `/api/movies/search-tmdb?query=${encodeURIComponent(query)}`
     );
     return response.data;
   },
